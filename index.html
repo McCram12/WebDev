@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Web Console</title>
+    <style>
+        /* Basic Styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #282c34;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Header with dropdown */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 1em;
+            background-color: #333;
+        }
+        
+        #tabSelect {
+            padding: 0.5em;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #61dafb;
+            color: #282c34;
+        }
+        
+        /* Sidebar styling */
+        .sidebar {
+            width: 100%;
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+            background-color: #1e1e1e;
+            padding: 1em;
+            border-right: 1px solid #444;
+        }
+
+        .tool-button {
+            padding: 0.8em;
+            font-size: 1em;
+            margin: 0.2em 0;
+            background-color: #333;
+            color: #61dafb;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tool-button.active {
+            background-color: #61dafb;
+            color: #282c34;
+        }
+
+        /* Console styling */
+        .console {
+            flex: 1;
+            width: 100%;
+            max-width: 600px;
+            padding: 1em;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow-y: auto;
+            height: 200px;
+            margin-top: 1em;
+        }
+
+        .console-output {
+            font-family: monospace;
+            white-space: pre-wrap;
+            color: #b5bd68;
+        }
+
+        /* Input area for commands */
+        .input-area {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 1em;
+        }
+
+        #commandInput {
+            flex: 1;
+            padding: 0.5em;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px 0 0 5px;
+        }
+
+        #runButton {
+            padding: 0.5em 1em;
+            font-size: 1em;
+            background-color: #61dafb;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Tab Selection -->
+    <header>
+        <h2>Mobile Web Console</h2>
+        <select id="tabSelect">
+            <option value="Tab1">Tab 1</option>
+            <option value="Tab2">Tab 2</option>
+            <option value="Tab3">Tab 3</option>
+        </select>
+    </header>
+
+    <!-- Sidebar for Tools -->
+    <div class="sidebar">
+        <button class="tool-button active" onclick="showConsole()">Console</button>
+        <button class="tool-button" onclick="showAddons()">Addons</button>
+    </div>
+
+    <!-- Console Area -->
+    <div class="console" id="console" style="display: block;">
+        <div class="console-output" id="consoleOutput"></div>
+    </div>
+
+    <!-- Addons Area (hidden by default) -->
+    <div class="console" id="addons" style="display: none;">
+        <p style="color: #61dafb;">No addons installed yet.</p>
+    </div>
+
+    <!-- Input area to run JavaScript commands -->
+    <div class="input-area">
+        <input type="text" id="commandInput" placeholder="Enter JavaScript command" autofocus>
+        <button id="runButton">Run</button>
+    </div>
+
+    <script>
+        const consoleOutput = document.getElementById('consoleOutput');
+        const commandInput = document.getElementById('commandInput');
+        const runButton = document.getElementById('runButton');
+        const consoleArea = document.getElementById('console');
+        const addonsArea = document.getElementById('addons');
+
+        // Function to log output in the console
+        function logOutput(output) {
+            const newLine = document.createElement('div');
+            newLine.textContent = `> ${output}`;
+            consoleOutput.appendChild(newLine);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;  // Auto-scroll to the bottom
+        }
+
+        // Run command from input
+        function runCommand() {
+            const command = commandInput.value;
+            if (!command.trim()) return;  // Ignore empty commands
+
+            try {
+                const result = eval(command);
+                logOutput(result !== undefined ? result : "undefined");
+            } catch (error) {
+                logOutput(`Error: ${error.message}`);
+            }
+
+            commandInput.value = '';  // Clear input after execution
+        }
+
+        // Switch between Console and Addons
+        function showConsole() {
+            consoleArea.style.display = "block";
+            addonsArea.style.display = "none";
+            setActiveButton('Console');
+        }
+
+        function showAddons() {
+            consoleArea.style.display = "none";
+            addonsArea.style.display = "block";
+            setActiveButton('Addons');
+        }
+
+        // Highlight the active tool button
+        function setActiveButton(tool) {
+            document.querySelectorAll('.tool-button').forEach(button => {
+                button.classList.toggle('active', button.textContent === tool);
+            });
+        }
+
+        // Event listeners for button and Enter key
+        runButton.addEventListener('click', runCommand);
+        commandInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') runCommand();
+        });
+    </script>
+</body>
+</html>
